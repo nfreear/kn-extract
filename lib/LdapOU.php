@@ -1,11 +1,11 @@
 <?php
-/*
+/**
  OU LDAP library and tests.
 
  http://uk2.php.net/ldap
 
- @author    N.D.Freear, 4 Sep 2008, 2 dec 2010.
  @copyright Copyright 2008-2014 Nick Freear, The Open University.
+ @author    N.D.Freear, 4 Sep 2008, 2 dec 2010.
 */
 #header('Content-Type: text/plain; charset=UTF-8');
 

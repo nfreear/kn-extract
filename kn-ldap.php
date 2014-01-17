@@ -1,6 +1,6 @@
 <?php
 /**
-  Knowledge-Network LDAP.
+  Knowledge-Network data extraction - with LDAP.
 
   Workspace "owners" (top-level only) and document owners,
   filtered by those that are still in the
@@ -9,18 +9,17 @@
 
   Orphaned documents (ones with no current OU authors..)
 
---
-
-  @author    Nick Freear, 17 Dec 2013.
   @copyright Copyright 2013 Nick Freear, The Open University.
+  @author    Nick Freear, 17 Dec 2013.
 */
-require "./ldap.php";
+require_once './config.php';
+require_once './lib/LdapOU.php';
 
-define('OUCU_COLUMN', 1);
-define('EMAIL_COLUMN', 4);
-define('DATE_COLUMN', 5);
-$csv_file = 'T:/KN-users-ou-visit-2013-11-13.csv';
 
+$csv_in = CSV_FILE;
+$csv_out = './'. basename($csv_in, '.csv') .'-out.csv';
+$php_out = './'. basename($csv_in, '.csv') .'-php-serial.txt';
+$json_out = './'. basename($csv_in, '.csv') .'-json.txt';
 
 echo $argv[1];
 #echo basename(__FILE__);
@@ -29,11 +28,12 @@ echo $argv[1];
 //$obj = csv_to_array($csv_file);
 
 
-$csv_raw = file($csv_file);
+$csv_raw = file($csv_in);
 $obj = array();
 
+$fcsv = fopen($csv_out, 'w');
 
-$ldap = new LdapOU($ldaprdn, $ldappass);
+$ldap = new LdapOU(LDAP_RDN, LDAP_PASS);
 
 foreach ($csv_raw as $row) {
   // "UCS-2" to utf-8.
@@ -44,24 +44,34 @@ foreach ($csv_raw as $row) {
   $ldap_query = '(samaccountname=' . $row->oucu . ')';
   $count = $ldap->search($ldap_query, LdapOU::$attrs_ou);
 
-  $row->count = $count;
-
+  $row->is_current = $count;
   $obj[] = $row;
 
-  if (count($obj) > 10) {
+  $bytes = fputcsv($fcsv, (array)$row);
+
+  if (LIMIT && count($obj) > LIMIT) {
     break;
   }
 }
 
-var_dump($obj);
+fclose($fcsv);
+#$bytes = file_put_contents($json_out, json_encode($obj));
+$bytes = file_put_contents($php_out, serialize($obj));
+
+echo "Files written, $bytes bytes: ". $php_out .PHP_EOL;
+#var_dump($obj);
+
 
 
 
 function csv_to_obj($row) {
   return (object) array(
-    'oucu' => $row[OUCU_COLUMN],
-	'email' => $row[EMAIL_COLUMN],
-	'date' => $row[DATE_COLUMN],
+    'user_id' => $row[COLUMN_USER_ID],
+    'oucu'    => $row[COLUMN_OUCU],
+    'firstname' => $row[COLUMN_FIRSTNAME],
+    'surname' => $row[COLUMN_SURNAME],
+    'email'   => $row[COLUMN_EMAIL],
+    'created' => $row[COLUMN_DATE],
   );
 }
 

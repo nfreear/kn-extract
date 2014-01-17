@@ -3,3 +3,6 @@
 config.php
 *old*.*
 *Copy*.*
+
+*.csv
+*-php-*
