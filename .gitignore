@@ -8,3 +8,5 @@ config.php
 *.sql
 *-php-*
 *-email.txt
+
+!/kn-patches/*

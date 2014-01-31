@@ -1,0 +1,157 @@
+Index: _includes/header.cfm
+===================================================================
+--- _includes/header.cfm	(revision 3733)
++++ _includes/header.cfm	(working copy)
+@@ -74,7 +74,68 @@
+     </cfif>
+ </head>
+ 
++
++
++<!---NDF: readonly, 2014-01-31. --->
++<style>
++body{ color: #222; background: #fcfcfc; }
++
++.readonly-msg {
++  position:absolute; left: 100px; top: 22px; padding: 5px; border: 3px solid #900;
++  background: #f7f7f7; font-size: 1em; text-align: center;
++}
++/* edit and Edit, create and Create... */
++.is-readonly a[href *= "dit"], .is-readonly a[href *= "reate"], .is-readonly a[href *= "ubscribe"],
++.is-readonly a[href *= "hange"] {
++  /*display: none;*/
++  color: #777;
++  text-decoration: line-through;
++}
++.is-readonly a[href *= "dit"]:after, .is-readonly [href *= "reate"]:after, .is-readonly [href *= "ubscribe"]:after,
++.is-readonly [href *= "hange"]:after {
++  content: " (Disabled)";
++  text-decoration: none;
++  color: #900;
++}
++.readonly-no-access {
++  text-align: center; margin: 3em;
++}
++.readonly-no-access img { margin: 2em; }
++</style>
++<cfif IsDefined("REQUEST.is_readonly") and REQUEST.is_readonly AND
++  (REQUEST.readonly_user eq CLIENT.iamid OR IsDefined("URL.readonly")) >
++
++  <cfif IsDefined("URL.method") and
++    (URL.method contains "edit" OR URL.method contains "create" OR URL.method CONTAINS "subscribe") >
++
++    <!---<cferror template = "../CustomTags/sitewide/ErrorResourceNotFound.cfm" type = "exception">--->
++
++<body class="readonly-no-access">
++
++    <h1>This page is no longer accessible</h1>
++    <p><a href="javascript:window.history.back();">Go back to the previous page</a>.
++    <p><a href="#TODO" onclick="alert('Under construction.')">Find out more</a>.
++    <p><a href="/public/"><img src="/images/title_knowledgenetwork.gif" alt="OU Knowledge Network" title="Open University Knowledge Network" /></a>
++    <p><small>[ Method: <cfoutput>#URL.method#</cfoutput>; Iamid: <cfoutput>#Client.iamid#</cfoutput> ]
++
++    <cfabort /><!---showError = "Custom error..." />--->
++  </cfif>
++
++<body class="is-readonly">
++
++  <p class=readonly-msg >From 14 February 2014, the Knowledge Network will be read-only.
++    <br><a href="#TODO" onclick="alert('Under construction.')">Find out more</a>.
++  </p>
++
++<cfelse>
++
+ <body>
++
++</cfif>
++<!---NDF: END.--->
++
++
++
+ 	<div id="scroll"></div>
+ 	<!--- draw the OU header bar --->
+ 	<cfinclude template="/includes/header-full-noresize.html">
+Index: CustomTags/document/DocumentCreateProcess.cfm
+===================================================================
+--- CustomTags/document/DocumentCreateProcess.cfm	(revision 3733)
++++ CustomTags/document/DocumentCreateProcess.cfm	(working copy)
+@@ -91,24 +91,24 @@
+ 
+ <!--- Put all the document details in the database --->
+ <cfstoredproc datasource="#request.dsn#" procedure="KNsp_CreateDocument">
+-<cfprocparam cfsqltype="cf_sql_varchar" type="in" value="#FORM.DocumentTitle#">
+-<cfprocparam cfsqltype="cf_sql_integer" type="in" value="#client.iamid#">
+-<cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.AccessGroupID#">
+-	<cfprocparam cfsqltype="cf_sql_varchar" type="in" value="#FORM.DocumentAbstract#">
++<cfprocparam cfsqltype="cf_sql_varchar" type="in" value="#FORM.DocumentTitle#" dbvarname="">
++<cfprocparam cfsqltype="cf_sql_integer" type="in" value="#client.iamid#"  dbvarname="">
++<cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.AccessGroupID#"  dbvarname="">
++	<cfprocparam cfsqltype="cf_sql_varchar" type="in" dbvarname="" value="#FORM.DocumentAbstract#">
+ 	<cfif FORM.DocumentYear neq "">
+-	    <cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.DocumentYear#">
++	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" value="#FORM.DocumentYear#">
+ 	<cfelse>
+-	    <cfprocparam cfsqltype="cf_sql_integer" type="in" null="yes">
++	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" null="yes">
+ 	</cfif>
+ 	<cfif FORM.DocumentMonth neq "">
+-	    <cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.DocumentMonth#">
++	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" value="#FORM.DocumentMonth#">
+ 	<cfelse>
+-	    <cfprocparam cfsqltype="cf_sql_integer" type="in" null="yes">
++	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" null="yes">
+ 	</cfif>
+ 	<cfif FORM.DocumentDay neq "">
+-	    <cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.DocumentDay#">
++	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" value="#FORM.DocumentDay#">
+ 	<cfelse>
+-	    <cfprocparam cfsqltype="cf_sql_integer" type="in" null="yes">
++	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" null="yes">
+ 	</cfif>
+ 	<cfprocparam cfsqltype="cf_sql_bit" type="in" value="#FORM.ViewMetaData#">
+         <cfif IsDefined("FORM.DocumentURL") and URL.uploadtype eq "url">
+Index: CustomTags/sitewide/SitewideBox_NewsTeaser.cfm
+===================================================================
+--- CustomTags/sitewide/SitewideBox_NewsTeaser.cfm	(revision 3733)
++++ CustomTags/sitewide/SitewideBox_NewsTeaser.cfm	(working copy)
+@@ -18,12 +18,20 @@
+ 	<div class="scroller">
+ 		<cfoutput query="qry_GetNewsItems">
+ 			<p class="scroll_item">
+-				
+-				<strong><cfif NewsItemHeadlineURL eq "">
++
++				<h2><cfif NewsItemHeadlineURL eq "">
+                     <a href="news.cfm?method=DisplayNewsStrandFull&amp;newsstrandid=#newsstrandid####newsitemid#">#NewsItemHeadline#</a>
+ 					<cfelse>
+ 					<a href="#URLEncodedFormat(NewsItemHeadlineURL)#">#NewsItemHeadline#</a><br />
++				</cfif></h2><br /><span>#DateFormat(NewsItemEntryDate, "dd mmm yyyy")#</span>
++
++				<!---
++				<strong><cfif NewsItemHeadlineURL eq "">
++				                    <a href="news.cfm?method=DisplayNewsStrandFull&amp;newsstrandid=#newsstrandid####newsitemid#">#NewsItemHeadline#</a>
++									<cfelse>
++									<a href="#URLEncodedFormat(NewsItemHeadlineURL)#">#NewsItemHeadline#</a><br />
+ 				</cfif></strong><br /><span>#DateFormat(NewsItemEntryDate, "dd mmm yyyy")#</span>
++				--->
+ 			</p>
+ 		</cfoutput>
+ 	</div>
+Index: server_defaults.cfm
+===================================================================
+--- server_defaults.cfm	(revision 3733)
++++ server_defaults.cfm	(working copy)
+@@ -2,7 +2,13 @@
+ 		*** development server *** in banner bar)--->
+ 
+ 
++<!---NDF: readonly, 2014-01-31. --->
++<cfset REQUEST.is_readonly = "true">
++<cfset REQUEST.readonly_user = "14298">
+ 
++
++
++
+ <cfset request.contact_email_address = "knowledge-network@open.ac.uk">
+ <cfset request.contact_email_name = "Knowledge Network team">
+ <!--- E-mail address for error messages --->
