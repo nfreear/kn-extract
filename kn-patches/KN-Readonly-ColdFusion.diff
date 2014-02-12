@@ -2,7 +2,7 @@ Index: _includes/header.cfm
 ===================================================================
 --- _includes/header.cfm	(revision 3733)
 +++ _includes/header.cfm	(working copy)
-@@ -74,7 +74,68 @@
+@@ -74,7 +74,69 @@
      </cfif>
  </head>
  
@@ -18,13 +18,13 @@ Index: _includes/header.cfm
 +}
 +/* edit and Edit, create and Create... */
 +.is-readonly a[href *= "dit"], .is-readonly a[href *= "reate"], .is-readonly a[href *= "ubscribe"],
-+.is-readonly a[href *= "hange"] {
++.is-readonly a[href *= "hange"], .is-readonly [href *= "elete"] {
 +  /*display: none;*/
 +  color: #777;
 +  text-decoration: line-through;
 +}
 +.is-readonly a[href *= "dit"]:after, .is-readonly [href *= "reate"]:after, .is-readonly [href *= "ubscribe"]:after,
-+.is-readonly [href *= "hange"]:after {
++.is-readonly [href *= "hange"]:after, .is-readonly [href *= "elete"]:after {
 +  content: " (Disabled)";
 +  text-decoration: none;
 +  color: #900;
@@ -38,7 +38,8 @@ Index: _includes/header.cfm
 +  (REQUEST.readonly_user eq CLIENT.iamid OR IsDefined("URL.readonly")) >
 +
 +  <cfif IsDefined("URL.method") and
-+    (URL.method contains "edit" OR URL.method contains "create" OR URL.method CONTAINS "subscribe") >
++    (URL.method contains "edit" OR URL.method contains "create" OR URL.method CONTAINS "subscribe"
++    OR URL.method CONTAINS "add" OR URL.method CONTAINS "delete") >
 +
 +    <!---<cferror template = "../CustomTags/sitewide/ErrorResourceNotFound.cfm" type = "exception">--->
 +
@@ -71,82 +72,17 @@ Index: _includes/header.cfm
  	<div id="scroll"></div>
  	<!--- draw the OU header bar --->
  	<cfinclude template="/includes/header-full-noresize.html">
-Index: CustomTags/document/DocumentCreateProcess.cfm
-===================================================================
---- CustomTags/document/DocumentCreateProcess.cfm	(revision 3733)
-+++ CustomTags/document/DocumentCreateProcess.cfm	(working copy)
-@@ -91,24 +91,24 @@
- 
- <!--- Put all the document details in the database --->
- <cfstoredproc datasource="#request.dsn#" procedure="KNsp_CreateDocument">
--<cfprocparam cfsqltype="cf_sql_varchar" type="in" value="#FORM.DocumentTitle#">
--<cfprocparam cfsqltype="cf_sql_integer" type="in" value="#client.iamid#">
--<cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.AccessGroupID#">
--	<cfprocparam cfsqltype="cf_sql_varchar" type="in" value="#FORM.DocumentAbstract#">
-+<cfprocparam cfsqltype="cf_sql_varchar" type="in" value="#FORM.DocumentTitle#" dbvarname="">
-+<cfprocparam cfsqltype="cf_sql_integer" type="in" value="#client.iamid#"  dbvarname="">
-+<cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.AccessGroupID#"  dbvarname="">
-+	<cfprocparam cfsqltype="cf_sql_varchar" type="in" dbvarname="" value="#FORM.DocumentAbstract#">
- 	<cfif FORM.DocumentYear neq "">
--	    <cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.DocumentYear#">
-+	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" value="#FORM.DocumentYear#">
- 	<cfelse>
--	    <cfprocparam cfsqltype="cf_sql_integer" type="in" null="yes">
-+	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" null="yes">
- 	</cfif>
- 	<cfif FORM.DocumentMonth neq "">
--	    <cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.DocumentMonth#">
-+	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" value="#FORM.DocumentMonth#">
- 	<cfelse>
--	    <cfprocparam cfsqltype="cf_sql_integer" type="in" null="yes">
-+	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" null="yes">
- 	</cfif>
- 	<cfif FORM.DocumentDay neq "">
--	    <cfprocparam cfsqltype="cf_sql_integer" type="in" value="#FORM.DocumentDay#">
-+	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" value="#FORM.DocumentDay#">
- 	<cfelse>
--	    <cfprocparam cfsqltype="cf_sql_integer" type="in" null="yes">
-+	    <cfprocparam cfsqltype="cf_sql_integer" dbvarname="" type="in" null="yes">
- 	</cfif>
- 	<cfprocparam cfsqltype="cf_sql_bit" type="in" value="#FORM.ViewMetaData#">
-         <cfif IsDefined("FORM.DocumentURL") and URL.uploadtype eq "url">
-Index: CustomTags/sitewide/SitewideBox_NewsTeaser.cfm
-===================================================================
---- CustomTags/sitewide/SitewideBox_NewsTeaser.cfm	(revision 3733)
-+++ CustomTags/sitewide/SitewideBox_NewsTeaser.cfm	(working copy)
-@@ -18,12 +18,20 @@
- 	<div class="scroller">
- 		<cfoutput query="qry_GetNewsItems">
- 			<p class="scroll_item">
--				
--				<strong><cfif NewsItemHeadlineURL eq "">
-+
-+				<h2><cfif NewsItemHeadlineURL eq "">
-                     <a href="news.cfm?method=DisplayNewsStrandFull&amp;newsstrandid=#newsstrandid####newsitemid#">#NewsItemHeadline#</a>
- 					<cfelse>
- 					<a href="#URLEncodedFormat(NewsItemHeadlineURL)#">#NewsItemHeadline#</a><br />
-+				</cfif></h2><br /><span>#DateFormat(NewsItemEntryDate, "dd mmm yyyy")#</span>
-+
-+				<!---
-+				<strong><cfif NewsItemHeadlineURL eq "">
-+				                    <a href="news.cfm?method=DisplayNewsStrandFull&amp;newsstrandid=#newsstrandid####newsitemid#">#NewsItemHeadline#</a>
-+									<cfelse>
-+									<a href="#URLEncodedFormat(NewsItemHeadlineURL)#">#NewsItemHeadline#</a><br />
- 				</cfif></strong><br /><span>#DateFormat(NewsItemEntryDate, "dd mmm yyyy")#</span>
-+				--->
- 			</p>
- 		</cfoutput>
- 	</div>
 Index: server_defaults.cfm
 ===================================================================
 --- server_defaults.cfm	(revision 3733)
 +++ server_defaults.cfm	(working copy)
-@@ -2,7 +2,13 @@
+@@ -2,7 +2,14 @@
  		*** development server *** in banner bar)--->
  
  
 +<!---NDF: readonly, 2014-01-31. --->
 +<cfset REQUEST.is_readonly = "true">
++<cfset REQUEST.readonly_user__YY = "0">
 +<cfset REQUEST.readonly_user = "14298">
  
 +
