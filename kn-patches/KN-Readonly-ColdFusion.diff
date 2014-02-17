@@ -2,7 +2,7 @@ Index: _includes/header.cfm
 ===================================================================
 --- _includes/header.cfm	(revision 3733)
 +++ _includes/header.cfm	(working copy)
-@@ -74,7 +74,146 @@
+@@ -74,7 +74,154 @@
      </cfif>
  </head>
  
@@ -60,9 +60,9 @@ Index: _includes/header.cfm
 +}
 +</style>
 +
-+  <cfif (DateCompare(Now(), REQUEST.readonly_date) eq 1  OR  IsDefined("URL.readonly"))
-+    AND
-+        IsDefined("URL.method")
++  <cfif (DateCompare(Now(), REQUEST.readonly_date) eq 1  OR  IsDefined("URL.readonly")) >
++
++  <cfif IsDefined("URL.method")
 +    AND
 +    (URL.method contains "edit" OR URL.method contains "create" OR URL.method CONTAINS "subscribe"
 +    OR URL.method CONTAINS "add" OR URL.method CONTAINS "delete") >
@@ -79,9 +79,14 @@ Index: _includes/header.cfm
 +    <p><small>[ Method: <cfoutput>#URL.method#</cfoutput>; Iamid: <cfoutput>#Client.iamid#</cfoutput> ]
 +
 +    <cfabort /><!---showError = "Custom error..." />--->
-+  </cfif>
++  <cfelse>
 +
 +<body class="is-readonly">
++
++  </cfif>
++  </cfif>
++
++<!---<body class="X--is-readonly">--->
 +
 +  <cfif DateCompare(Now(), REQUEST.readonly_msg_date) eq 1 OR IsDefined("URL.readonly") >
 +
@@ -134,6 +139,9 @@ Index: _includes/header.cfm
 +  })();
 +  </script>
 +  </cfif>
++
++  <cfelse>
++<body class="pre-readonly">
 +  </cfif>
 +
 +<cfelse>
