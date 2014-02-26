@@ -2,7 +2,7 @@ Index: _includes/header.cfm
 ===================================================================
 --- _includes/header.cfm	(revision 3733)
 +++ _includes/header.cfm	(working copy)
-@@ -74,7 +74,154 @@
+@@ -74,7 +74,174 @@
      </cfif>
  </head>
  
@@ -14,7 +14,7 @@ Index: _includes/header.cfm
 +<!---<cfif IsDefined("REQUEST.is_readonly") and REQUEST.is_readonly AND
 +  (REQUEST.readonly_user eq CLIENT.iamid OR IsDefined("URL.readonly")) >--->
 +<style>
-+body{ color: #222; background: #fcfcfc; }
++body{ color: #222; background: #fdfdfd; }
 +a#ou-skip2{ top: 15px; }
 +
 +.readonly-msg {
@@ -34,7 +34,7 @@ Index: _includes/header.cfm
 +  text-decoration: none;
 +  color: #900;
 +}
-+.readonly-no-access {
++.readonly-no-access, .in-maintenance {
 +  text-align: center; margin: 3em;
 +}
 +.readonly-no-access img { margin: 2em; }
@@ -74,7 +74,7 @@ Index: _includes/header.cfm
 +    <h1>This page is no longer accessible</h1>
 +    <p>The Knowledge Network is now in read-only mode.
 +    <p><a href="javascript:window.history.back();">Go back to the previous page</a>.
-+    <p><a href="#TODO" onclick="alert('Under construction.')">Find out more</a>.
++    <p><a href="<cfoutput>#REQUEST.readonly_URL#</cfoutput>">Find out more</a>.
 +    <p><a href="/public/"><img src="/images/title_knowledgenetwork.gif" alt="OU Knowledge Network" title="Open University Knowledge Network" /></a>
 +    <p><small>[ Method: <cfoutput>#URL.method#</cfoutput>; Iamid: <cfoutput>#Client.iamid#</cfoutput> ]
 +
@@ -92,7 +92,7 @@ Index: _includes/header.cfm
 +
 +  <p class=readonly-msg id=readonly-msg >From <cfoutput>#DateFormat(REQUEST.readonly_date, "d mmmm yyyy")#</cfoutput>,
 +    the Knowledge Network will be read-only.
-+    <br><a href="#TODO" onclick="alert('Under construction.')">Find out more</a>.
++    <br><a href="<cfoutput>#REQUEST.readonly_URL#</cfoutput>" data-onclick="alert('Under construction.')">Find out more</a>.
 +    <!---<a href="#close" title="Close">x</a>--->
 +  </p>
 +
@@ -149,6 +149,26 @@ Index: _includes/header.cfm
  <body>
 +
 +</cfif>
++
++
++<cfif (IsDefined("REQUEST.in_maintenance") and REQUEST.in_maintenance) OR IsDefined("URL.maintenance") >
++  <!--- http://bennadel.com/blog/1118-Creating-A-Down-For-Maintenance-Page-Using-Application-cfc.htm? --->
++  <cfheader statuscode="503" statustext="Service Temporarily Unavailable" />
++  <cfheader name="Retry-After" value="3600" />
++
++  <div class="in-maintenance">
++  <h1>Routine maintenance</h1>
++  <p>09:00 GMT, Thursday 20 February 2014.
++  <p>The Knowledge Network is currently undergoing routine maintenance. We'll be back shortly.
++  <p><br />Thank you for your patience!
++  <p><br />
++  <p>Updates via Twitter:
++    <a href="https://twitter.com/IETatOU">@IETatOU</a> and <a href="https://twitter.com/nfreear">@nfreear</a>.
++  <p><br /><hr />
++  <p><a href="http://iet.open.ac.uk/">The Institute of Educational Technology</a> at The Open University.
++  </div>
++  <cfabort />
++</cfif>
 +<!---NDF: END.--->
 +
 +
@@ -161,7 +181,7 @@ Index: server_defaults.cfm
 ===================================================================
 --- server_defaults.cfm	(revision 3733)
 +++ server_defaults.cfm	(working copy)
-@@ -2,7 +2,17 @@
+@@ -2,7 +2,22 @@
  		*** development server *** in banner bar)--->
  
  
@@ -172,7 +192,12 @@ Index: server_defaults.cfm
 +<cfset REQUEST.readonly_date = CreateDate(2014, 03, 14) /><!--- 27 Feb, 14 Mar --->
 +<cfset REQUEST.readonly_msg_date = CreateDate(2014, 03, 03) /><!--- 21 Feb, 3 Mar --->
 +<cfset REQUEST.readonly_modal = "true" />
++<cfset REQUEST.readonly_URL =
++  "http://intranet6.open.ac.uk/research/scholarship/faqs?Migrating_content_from_the_Knowledge_Network##17">
++<cfset REQUEST.readonly_URL_2 =
++  "https://intranet7.open.ac.uk/collaboration/scholarship-platform/Lists/Announcements/AllItems.aspx" />
  
++<cfset REQUEST.in_maintenance = "false" />
 +
 +
 +
