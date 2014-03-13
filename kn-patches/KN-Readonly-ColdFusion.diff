@@ -158,7 +158,7 @@ Index: _includes/header.cfm
 +
 +  <div class="in-maintenance">
 +  <h1>Routine maintenance</h1>
-+  <p>09:00 GMT, Thursday 20 February 2014.
++  <p>09:00 GMT, Thursday 27 February 2014.
 +  <p>The Knowledge Network is currently undergoing routine maintenance. We'll be back shortly.
 +  <p><br />Thank you for your patience!
 +  <p><br />
@@ -181,7 +181,7 @@ Index: server_defaults.cfm
 ===================================================================
 --- server_defaults.cfm	(revision 3733)
 +++ server_defaults.cfm	(working copy)
-@@ -2,7 +2,22 @@
+@@ -2,7 +2,26 @@
  		*** development server *** in banner bar)--->
  
  
@@ -192,10 +192,14 @@ Index: server_defaults.cfm
 +<cfset REQUEST.readonly_date = CreateDate(2014, 03, 14) /><!--- 27 Feb, 14 Mar --->
 +<cfset REQUEST.readonly_msg_date = CreateDate(2014, 03, 03) /><!--- 21 Feb, 3 Mar --->
 +<cfset REQUEST.readonly_modal = "true" />
-+<cfset REQUEST.readonly_URL =
-+  "http://intranet6.open.ac.uk/research/scholarship/faqs?Migrating_content_from_the_Knowledge_Network##17">
-+<cfset REQUEST.readonly_URL_2 =
-+  "https://intranet7.open.ac.uk/collaboration/scholarship-platform/Lists/Announcements/AllItems.aspx" />
++<cfif find("/public", CGI.REQUEST_URI) >
++  <cfset REQUEST.readonly_URL = "http://cloudworks.ac.uk/cloud/view/8620" />
++<cfelse>
++  <cfset REQUEST.readonly_URL =
++    "http://intranet6.open.ac.uk/research/scholarship/faqs?Migrating_content_from_the_Knowledge_Network##17">
++  <cfset REQUEST.readonly_URL_2 =
++    "https://intranet7.open.ac.uk/collaboration/scholarship-platform/Lists/Announcements/AllItems.aspx" />
++</cfif>
  
 +<cfset REQUEST.in_maintenance = "false" />
 +
