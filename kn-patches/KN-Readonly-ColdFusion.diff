@@ -2,7 +2,7 @@ Index: _includes/header.cfm
 ===================================================================
 --- _includes/header.cfm	(revision 3733)
 +++ _includes/header.cfm	(working copy)
-@@ -74,7 +74,174 @@
+@@ -74,7 +74,181 @@
      </cfif>
  </head>
  
@@ -23,9 +23,9 @@ Index: _includes/header.cfm
 +}
 +/* Case-insensitive: "edit" and "Edit", create and Create... */
 +.is-readonly a[href *= "dit"], .is-readonly a[href *= "reate"], .is-readonly a[href *= "ubscribe"],
-+.is-readonly a[href *= "hange"], .is-readonly [href *= "elete"] {
++.is-readonly a[href *= "hange"], .is-readonly [href *= "elete"], .is-readonly #menu_sections li a[href *= "publish"] {
 +  /*display: none;*/
-+  color: #777;
++  color: #888;
 +  text-decoration: line-through;
 +}
 +.is-readonly a[href *= "dit"]:after, .is-readonly [href *= "reate"]:after, .is-readonly [href *= "ubscribe"]:after,
@@ -38,6 +38,11 @@ Index: _includes/header.cfm
 +  text-align: center; margin: 3em;
 +}
 +.readonly-no-access img { margin: 2em; }
++
++/* Kevin's tests. */
++.is-readonly [href *= "13979"][href *= document], .is-readonly [href *= "2934"][href *= workspace] {
++  display: none;
++}
 +</style>
 +<style>
 +#simplemodal-container a.modalCloseImg {
@@ -62,10 +67,12 @@ Index: _includes/header.cfm
 +
 +  <cfif (DateCompare(Now(), REQUEST.readonly_date) eq 1  OR  IsDefined("URL.readonly")) >
 +
-+  <cfif IsDefined("URL.method")
++  <cfif CGI.request_uri contains "publish"
++    OR
++    IsDefined("URL.method")
 +    AND
 +    (URL.method contains "edit" OR URL.method contains "create" OR URL.method CONTAINS "subscribe"
-+    OR URL.method CONTAINS "add" OR URL.method CONTAINS "delete") >
++    OR URL.method CONTAINS "add" OR URL.method CONTAINS "delete" OR URL.method CONTAINS "publish") >
 +
 +    <!---<cferror template = "../CustomTags/sitewide/ErrorResourceNotFound.cfm" type = "exception">--->
 +
@@ -76,7 +83,7 @@ Index: _includes/header.cfm
 +    <p><a href="javascript:window.history.back();">Go back to the previous page</a>.
 +    <p><a href="<cfoutput>#REQUEST.readonly_URL#</cfoutput>">Find out more</a>.
 +    <p><a href="/public/"><img src="/images/title_knowledgenetwork.gif" alt="OU Knowledge Network" title="Open University Knowledge Network" /></a>
-+    <p><small>[ Method: <cfoutput>#URL.method#</cfoutput>; Iamid: <cfoutput>#Client.iamid#</cfoutput> ]
++    <p><small>[ Method: <cfoutput><cfif IsDefined("URL.method")>#URL.method#<cfelse>-</cfif></cfoutput>; Iamid: <cfoutput>#Client.iamid#</cfoutput> ]
 +
 +    <cfabort /><!---showError = "Custom error..." />--->
 +  <cfelse>
