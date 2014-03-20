@@ -2,7 +2,7 @@ Index: _includes/header.cfm
 ===================================================================
 --- _includes/header.cfm	(revision 3733)
 +++ _includes/header.cfm	(working copy)
-@@ -74,7 +74,181 @@
+@@ -74,7 +74,185 @@
      </cfif>
  </head>
  
@@ -107,7 +107,11 @@ Index: _includes/header.cfm
 +  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 +  <script src="//cdn.jsdelivr.net/simplemodal/1.4.4/jquery.simplemodal.min.js"></script>
 +  <script>
-+  (function () {
++  $(function () {
++
++    //http://kn.open.ac.uk/public/workspace.cfm?wpid=7947
++    var pg_title = $.trim($("h2.objecttitle").text()).replace(/^The ?/i, '');
++    $("h2.objecttitle").after('<a href="<cfoutput>#REQUEST.search_URL#</cfoutput>'+ pg_title.replace(/ /g, '+') +'">Search</a>');
 +
 +    if (document.cookie.match(/kn_readonly=1/)) {
 +      return;
@@ -143,7 +147,7 @@ Index: _includes/header.cfm
 +      document.cookie = name+"="+value+expires+"; path=/";
 +    }
 +
-+  })();
++  }); //();
 +  </script>
 +  </cfif>
 +
@@ -188,7 +192,7 @@ Index: server_defaults.cfm
 ===================================================================
 --- server_defaults.cfm	(revision 3733)
 +++ server_defaults.cfm	(working copy)
-@@ -2,7 +2,26 @@
+@@ -2,7 +2,28 @@
  		*** development server *** in banner bar)--->
  
  
@@ -207,6 +211,8 @@ Index: server_defaults.cfm
 +  <cfset REQUEST.readonly_URL_2 =
 +    "https://intranet7.open.ac.uk/collaboration/scholarship-platform/Lists/Announcements/AllItems.aspx" />
 +</cfif>
++<cfset REQUEST.search_URL_ggl = "https://www.google.co.uk/search?q=" />
++<cfset REQUEST.search_URL = "https://www.google.com/cse/publicurl?cx=001222343498871500969:ddwohppt-gg&q=" />
  
 +<cfset REQUEST.in_maintenance = "false" />
 +
