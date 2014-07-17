@@ -88,12 +88,12 @@ function csv_to_obj($row) {
   if (! isset($row[0])) return NULL;
 
   return (object) array(
-    'user_id' => $row[COLUMN_USER_ID],
-    'oucu'    => $row[COLUMN_OUCU],
-    'firstname' => $row[COLUMN_FIRSTNAME],
-    'surname' => $row[COLUMN_SURNAME],
-    'email'   => $row[COLUMN_EMAIL],
-    'date'    => $row[COLUMN_DATE],
+    'user_id' => COLUMN_USER_ID < 0 ? NULL : $row[COLUMN_USER_ID],
+    'oucu'    => COLUMN_OUCU  < 0 ? NULL : $row[COLUMN_OUCU],
+    'firstname' => COLUMN_FIRSTNAME < 0 ? NULL : $row[COLUMN_FIRSTNAME],
+    'surname' => COLUMN_SURNAME < 0 ? NULL : $row[COLUMN_SURNAME],
+    'email'   => COLUMN_EMAIL < 0 ? NULL : $row[COLUMN_EMAIL],
+    'date'    => COLUMN_DATE  < 0 ? NULL : $row[COLUMN_DATE],
   );
 }
 
